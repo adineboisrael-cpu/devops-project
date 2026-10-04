@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: israeladinebo/devops-node-app:latest
     container_name: devops-app
     ports:
       - "3000:3000"

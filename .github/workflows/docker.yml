@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Deploy
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  docker:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,3 +26,14 @@ jobs:
       - name: Push Docker image
         run: |
           docker push israeladinebo/devops-node-app:latest
+
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/devops-project
+            git pull origin main
+            ./deploy.sh
