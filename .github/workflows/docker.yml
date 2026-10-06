@@ -27,12 +27,17 @@ jobs:
         run: |
           docker push israeladinebo/devops-node-app:latest
 
+      - name: Prepare SSH key
+        run: |
+          echo "${{ secrets.AWS_SSH_PRIVATE_KEY_B64 }}" | base64 --decode > deploy_key
+          chmod 600 deploy_key
+
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+          key_path: ./deploy_key
           script: |
             cd ~/devops-project
             git pull origin main
