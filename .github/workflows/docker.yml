@@ -1,10 +1,9 @@
-name: Build and Push Docker Image
+name: Build and Deploy
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -21,30 +20,17 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: |
-          docker build -t israeladinebo/devops-node-app:latest .
+        run: docker build -t israeladinebo/devops-node-app:latest .
 
       - name: Push Docker image
-        run: |
-          docker push israeladinebo/devops-node-app:latest
+        run: docker push israeladinebo/devops-node-app:latest
 
-      - name: Prepare SSH key
-        run: |
-          echo "${{ secrets.AWS_SSH_PRIVATE_KEY_B64 }}" | base64 --decode > deploy_key
-          chmod 600 deploy_key
-
-      - name: Verify SSH key
-        run: |
-          test -s deploy_key
-          ssh-keygen -y -f deploy_key > /dev/null
-          echo "SSH private key is valid"
-
-      - name: Deploy to AWS EC2
+      - name: Deploy to AWS
         uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
-          key_path: ./deploy_key
+          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
           script: |
             cd ~/devops-project
             git pull origin main
