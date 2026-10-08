@@ -20,11 +20,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t israeladineboisrael/devops-node-app:latest .
+          docker build -t israeladinebo/devops-node-app:latest .
 
       - name: Push Docker image
         run: |
-          docker push israeladineboisrael/devops-node-app:latest
+          docker push israeladinebo/devops-node-app:latest
 
       - name: Prepare SSH key
         run: |
