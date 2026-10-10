@@ -42,7 +42,7 @@ jobs:
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
-          key_path: ./deploy_key
+         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
           script: |
             set -e
             cd ~/devops-project
