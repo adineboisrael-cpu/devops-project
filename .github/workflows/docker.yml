@@ -1,3 +1,4 @@
+```yaml
 name: Build and Deploy
 
 on:
@@ -28,11 +29,11 @@ jobs:
 
       - name: Prepare SSH key
         env:
-          SSH_KEY_B64: ${{ secrets.AWS_SSH_PRIVATE_KEY_B64 }}
+          SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         run: |
           set -e
-          test -n "$SSH_KEY_B64"
-          printf '%s' "$SSH_KEY_B64" | base64 --decode > deploy_key
+          test -n "$SSH_PRIVATE_KEY"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > deploy_key
           chmod 600 deploy_key
           ssh-keygen -y -f deploy_key > /dev/null
           echo "SSH private key validated."
@@ -42,7 +43,7 @@ jobs:
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
-         key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
           script: |
             set -e
             cd ~/devops-project
@@ -51,3 +52,4 @@ jobs:
             sleep 5
             curl -fsS http://localhost:3000/health
             echo "Deployment and health check successful."
+```
