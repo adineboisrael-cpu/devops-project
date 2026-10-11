@@ -51,4 +51,3 @@ jobs:
             sleep 5
             curl -fsS http://localhost:3000/health
             echo "Deployment and health check successful."
-```
