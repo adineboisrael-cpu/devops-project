@@ -31,8 +31,8 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         run: |
           set -e
-          test -n "$AWS_SSH_PRIVATE_KEY"
-          printf '%s\n' "$AWS_SSH_PRIVATE_KEY" > deploy_key
+          test -n "$SSH_PRIVATE_KEY"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > deploy_key
           chmod 600 deploy_key
           ssh-keygen -y -f deploy_key > /dev/null
           echo "SSH private key validated."
