@@ -1,4 +1,5 @@
-name: Build and Deploy
+
+            sleep 5name: Build and Deploy
 
 on:
   push:
@@ -48,6 +49,5 @@ jobs:
             cd ~/devops-project
             docker pull israeladinebo/devops-node-app:latest
             docker-compose up -d
-            sleep 5
             curl -fsS http://localhost:3000/health
             echo "Deployment and health check successful."
