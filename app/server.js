@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3000;
 app.get("/", (req, res) => {
     res.send(`
         <h1>DevOps Project 🚀</h1>
-        <p>Application successfully deployed!</p>
+        <p>Application successfully deployed through CI/CD!</p>
         <p>Running inside Docker.</p>
     `);
 });
