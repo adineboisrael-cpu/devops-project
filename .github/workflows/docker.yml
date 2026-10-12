@@ -1,4 +1,3 @@
-
 name: Build and Deploy
 
 on:
@@ -29,8 +28,6 @@ jobs:
 
       - name: Prepare SSH key
         env:
-                - name: Prepare SSH key
-        env:
           SSH_PRIVATE_KEY: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         run: |
           set -eu
@@ -38,33 +35,39 @@ jobs:
           printf '%s\n' "$SSH_PRIVATE_KEY" > deploy_key
           chmod 600 deploy_key
           ssh-keygen -y -f deploy_key > /dev/null
-          ssh-keygen -y -f deploy_key | ssh-keygen -lf -
           echo "SSH private key validated."
 
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+          port: 22
+          timeout: 60s
+          command_timeout: 5m
+          script: |
+            set -e
+            cd ~/devops-project
 
-  - name: Deploy to AWS EC2
-    uses: appleboy/ssh-action@v1.2.5
-    with:
-      host: ${{ secrets.AWS_HOST }}
-      username: ${{ secrets.AWS_USER }}
-      key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
-      script: |
-        set -e
-        cd ~/devops-project
-        docker pull israeladinebo/devops-node-app:latest
-        docker-compose up -d
+            echo "Pulling the latest Docker image..."
+            docker pull israeladinebo/devops-node-app:latest
 
-        echo "Waiting for application to become healthy..."
-        for i in $(seq 1 12); do
-          if curl -fsS http://localhost:3000/health; then
-            echo "Deployment and health check successful."
-            exit 0
-          fi
-          echo "Application not ready yet. Retrying in 5 seconds..."
-          sleep 5
-        done
+            echo "Starting the application..."
+            docker-compose up -d
 
-        echo "Health check failed after 60 seconds."
-        docker ps -a
-        docker logs --tail 50 devops-app
-        exit 1
+            echo "Waiting for the application to become ready..."
+            for i in $(seq 1 12); do
+              if curl -fsS http://127.0.0.1:3000/health; then
+                echo ""
+                echo "Deployment and health check successful."
+                exit 0
+              fi
+
+              echo "Application not ready yet. Retrying in 5 seconds..."
+              sleep 5
+            done
+
+            echo "Health check failed after 60 seconds."
+            docker-compose logs --tail=50
+            exit 1
