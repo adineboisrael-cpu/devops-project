@@ -41,7 +41,7 @@ jobs:
           ssh-keygen -y -f deploy_key | ssh-keygen -lf -
           echo "SSH private key validated."
 
-```
+
   - name: Deploy to AWS EC2
     uses: appleboy/ssh-action@v1.2.5
     with:
