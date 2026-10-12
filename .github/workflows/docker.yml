@@ -41,16 +41,30 @@ jobs:
           ssh-keygen -y -f deploy_key | ssh-keygen -lf -
           echo "SSH private key validated."
 
-      - name: Deploy to AWS EC2
-        uses: appleboy/ssh-action@v1.2.5
-        with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
-          key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
-          script: |
-            set -e
-            cd ~/devops-project
-            docker pull israeladinebo/devops-node-app:latest
-            docker-compose up -d
-            curl -fsS http://localhost:3000/health
+```
+  - name: Deploy to AWS EC2
+    uses: appleboy/ssh-action@v1.2.5
+    with:
+      host: ${{ secrets.AWS_HOST }}
+      username: ${{ secrets.AWS_USER }}
+      key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+      script: |
+        set -e
+        cd ~/devops-project
+        docker pull israeladinebo/devops-node-app:latest
+        docker-compose up -d
+
+        echo "Waiting for application to become healthy..."
+        for i in $(seq 1 12); do
+          if curl -fsS http://localhost:3000/health; then
             echo "Deployment and health check successful."
+            exit 0
+          fi
+          echo "Application not ready yet. Retrying in 5 seconds..."
+          sleep 5
+        done
+
+        echo "Health check failed after 60 seconds."
+        docker ps -a
+        docker logs --tail 50 devops-app
+        exit 1
